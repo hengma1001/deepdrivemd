@@ -30,7 +30,7 @@ class CVAESettings(BaseSettings):
     latent_dim: int = 10
     lambda_rec: float = 1.0
     num_data_workers: int = 0
-    prefetch_factor: int = 2
+    prefetch_factor: Optional[int] = 2
     batch_size: int = 64
     device: str = "cuda"
     optimizer_name: str = "RMSprop"
