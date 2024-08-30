@@ -101,7 +101,7 @@ def _configure_amber_explicit(
                 (1, 1, 1) * u.bar, temperature_kelvin * u.kelvin, False, False, True
             )
         )
-    else:
+    elif "Barostat" in explicit_barostat:
         raise ValueError(f"Invalid explicit_barostat option: {explicit_barostat}")
 
     sim = app.Simulation(
