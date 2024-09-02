@@ -13,6 +13,7 @@ try:
 except ImportError:
     pass  # For testing purposes
 
+import parmed as pmd
 from MDAnalysis.analysis import align, distances, rms
 
 from deepdrivemd.api import Application, PathLike
@@ -69,6 +70,7 @@ def _configure_amber_implicit(
 
 
 def _configure_amber_explicit(
+    pdb_file: PathLike,
     top_file: PathLike,
     dt_ps: float,
     temperature_kelvin: float,
@@ -77,7 +79,7 @@ def _configure_amber_explicit(
     platform_properties: Dict[str, str],
     explicit_barostat: str,
 ) -> "app.Simulation":
-    top = app.AmberPrmtopFile(str(top_file))
+    top = pmd.load_file(str(top_file), xyz=str(pdb_file))
     system = top.createSystem(
         nonbondedMethod=app.PME,
         nonbondedCutoff=1.0 * u.nanometer,
@@ -189,6 +191,7 @@ def configure_simulation(
         assert top_file is not None
         pdb = None
         sim = _configure_amber_explicit(
+            pdb_file,
             top_file,
             dt_ps,
             temperature_kelvin,
