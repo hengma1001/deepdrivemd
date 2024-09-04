@@ -278,6 +278,8 @@ class MDSimulationApplication(Application):
             dt_ps=self.config.dt_ps,
             temperature_kelvin=self.config.temperature_kelvin,
             heat_bath_friction_coef=self.config.heat_bath_friction_coef,
+            explicit_barostat=self.config.explicit_barostat,
+            run_minimization=self.config.run_minimization,
         )
 
         # openmm typed variables

@@ -27,6 +27,9 @@ class MDSimulationSettings(ApplicationSettings):
     """MDAnalysis selection to run contact map and RMSD analysis on."""
     cutoff_angstrom: float = 8.0
     """Atoms within this cutoff are said to be in contact."""
+    explicit_barostat: Optional[str] = None
+    """barostat type, none means NVT"""
+    run_minimization: bool = False
 
     # validators
     _rmsd_reference_pdb_exists = path_validator("rmsd_reference_pdb")
