@@ -45,10 +45,10 @@ def _configure_amber_implicit(
         )
     else:
         pdb = app.PDBFile(str(pdb_file))
-        top = pdb.topology
+        top = pdb
         forcefield = app.ForceField("amber14-all.xml", "implicit/gbn2.xml")
         system = forcefield.createSystem(
-            top,
+            top.topology,
             nonbondedMethod=app.CutoffNonPeriodic,
             nonbondedCutoff=1.0 * u.nanometer,
             constraints=app.HBonds,
@@ -62,7 +62,9 @@ def _configure_amber_implicit(
     )
     integrator.setConstraintTolerance(0.00001)
 
-    sim = app.Simulation(top, system, integrator, platform, platform_properties)
+    sim = app.Simulation(
+        top.topology, system, integrator, platform, platform_properties
+    )
 
     # Returning the pdb file object for later use to reduce I/O.
     # If a topology file is passed, the pdb variable is None.
