@@ -75,6 +75,7 @@ def _configure_amber_explicit(
     pdb_file: PathLike,
     top_file: PathLike,
     dt_ps: float,
+    hydrogen_mass: float,
     temperature_kelvin: float,
     heat_bath_friction_coef: float,
     platform: "openmm.Platform",
@@ -82,11 +83,23 @@ def _configure_amber_explicit(
     explicit_barostat: str,
 ) -> "app.Simulation":
     top = pmd.load_file(str(top_file), xyz=str(pdb_file))
-    system = top.createSystem(
-        nonbondedMethod=app.PME,
-        nonbondedCutoff=1.0 * u.nanometer,
-        constraints=app.HBonds,
-    )
+    if dt_ps > 0.002:
+        """
+        https://github.com/openmm/openmm/issues/3117#issuecomment-841492272
+        https://github.com/openmm/openmm/issues/2520
+        """
+        system = top.createSystem(
+            nonbondedMethod=app.PME,
+            nonbondedCutoff=1.0 * u.nanometer,
+            constraints=app.HBonds,
+            hydrogenMass=hydrogen_mass * u.amu,
+        )
+    else:
+        system = top.createSystem(
+            nonbondedMethod=app.PME,
+            nonbondedCutoff=1.0 * u.nanometer,
+            constraints=app.HBonds,
+        )
 
     # Congfigure integrator
     integrator = openmm.LangevinIntegrator(
@@ -125,6 +138,7 @@ def configure_simulation(
     solvent_type: str,
     gpu_index: int,
     dt_ps: float,
+    hydrogen_mass: float,
     temperature_kelvin: float,
     heat_bath_friction_coef: float,
     explicit_barostat: str = "MonteCarloBarostat",
@@ -196,6 +210,7 @@ def configure_simulation(
             pdb_file,
             top_file,
             dt_ps,
+            hydrogen_mass,
             temperature_kelvin,
             heat_bath_friction_coef,
             platform,
@@ -278,6 +293,7 @@ class MDSimulationApplication(Application):
             solvent_type=self.config.solvent_type,
             gpu_index=0,
             dt_ps=self.config.dt_ps,
+            hydrogen_mass=self.config.hydrogen_mass,
             temperature_kelvin=self.config.temperature_kelvin,
             heat_bath_friction_coef=self.config.heat_bath_friction_coef,
             explicit_barostat=self.config.explicit_barostat,

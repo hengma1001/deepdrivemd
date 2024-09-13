@@ -19,7 +19,8 @@ class MDSimulationSettings(ApplicationSettings):
     simulation_length_ns: float = 10
     report_interval_ps: float = 50
     dt_ps: float = 0.002
-    temperature_kelvin: float = 310.0
+    hydrogen_mass: float = 1.0
+    temperature_kelvin: float = 300.0
     heat_bath_friction_coef: float = 1.0
     rmsd_reference_pdb: Path
     """Reference PDB file to compute RMSD to each frame."""
