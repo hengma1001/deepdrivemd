@@ -35,6 +35,7 @@ class CVAEInferenceSettings(ApplicationSettings):
     """The number of cores to use for sklearn LOF method."""
     num_outliers: int = 120
     """The number of latent space outliers to consider when picking the minimal RMSD structures."""
+    use_target: bool = True
 
     # validators
     _cvae_settings_yaml = path_validator("cvae_settings_yaml")
