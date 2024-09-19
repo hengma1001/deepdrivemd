@@ -254,7 +254,15 @@ class MDSimulationApplication(Application):
         if top_file is None:
             top_file = next(directory.glob("*.prmtop"), None)
         if top_file is not None:
+            # copying additional files, such as ff
+            other_files = list(directory.glob("*"))
+            pdb_file = next(directory.glob("*.pdb"), None)
+            other_files.remove(top_file)
+            other_files.remove(pdb_file)
+            for other_file in other_files:
+                self.copy_to_workdir(other_file)
             top_file = self.copy_to_workdir(top_file)
+
         return top_file
 
     def generate_restart_pdb(self, sim_dir: Path, frame: int) -> Path:
@@ -271,11 +279,13 @@ class MDSimulationApplication(Application):
     def run(self, input_data: MDSimulationInput) -> MDSimulationOutput:
         # Log the input data
         input_data.dump_yaml(self.workdir / "input.yaml")
+        run_minimization = self.config.run_minimization
 
         if input_data.sim_frame is None:
             # No restart point, starting from initial PDB
             pdb_file = next(input_data.sim_dir.glob("*.pdb"))
             pdb_file = self.copy_to_workdir(pdb_file)
+            run_minimization = True
             assert pdb_file is not None
         else:
             # Collect PDB, DCD, and topology files from previous simulation
@@ -297,7 +307,7 @@ class MDSimulationApplication(Application):
             temperature_kelvin=self.config.temperature_kelvin,
             heat_bath_friction_coef=self.config.heat_bath_friction_coef,
             explicit_barostat=self.config.explicit_barostat,
-            run_minimization=self.config.run_minimization,
+            run_minimization=run_minimization,
         )
 
         # openmm typed variables
@@ -356,7 +366,11 @@ class MDSimulationApplication(Application):
 
         # Compute contact maps, rmsd, etc in bulk
         mda_u = MDAnalysis.Universe(str(pdb_file), str(traj_file))
-        ref_u = MDAnalysis.Universe(str(self.config.rmsd_reference_pdb))
+        if self.config.rmsd_reference_pdb is None:
+            ref_pdb = pdb_file
+        else:
+            ref_pdb = self.config.rmsd_reference_pdb
+        ref_u = MDAnalysis.Universe(str(ref_pdb))
         # Align trajectory to compute accurate RMSD
         align.AlignTraj(
             mda_u, ref_u, select=self.config.mda_selection, in_memory=True

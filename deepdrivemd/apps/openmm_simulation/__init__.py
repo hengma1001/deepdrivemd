@@ -22,7 +22,7 @@ class MDSimulationSettings(ApplicationSettings):
     hydrogen_mass: float = 1.0
     temperature_kelvin: float = 300.0
     heat_bath_friction_coef: float = 1.0
-    rmsd_reference_pdb: Path
+    rmsd_reference_pdb: Optional[Path] = None
     """Reference PDB file to compute RMSD to each frame."""
     mda_selection: str = "protein and name CA"
     """MDAnalysis selection to run contact map and RMSD analysis on."""
