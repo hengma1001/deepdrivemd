@@ -321,8 +321,12 @@ class MDSimulationApplication(Application):
         nsteps = int(simulation_length_ns / dt_ps)
 
         # Set up reporters to write simulation trajectory file and logs
-        traj_file = self.workdir / "sim.dcd"
-        sim.reporters.append(app.DCDReporter(traj_file, report_steps))
+        if int(openmm.__version__[0]) > 7:
+            traj_file = str(self.workdir / "sim.xtc")
+            sim.reporters.append(app.XTCReporter(traj_file, report_steps))
+        else:
+            traj_file = str(self.workdir / "sim.dcd")
+            sim.reporters.append(app.DCDReporter(traj_file, report_steps))
         sim.reporters.append(
             app.StateDataReporter(
                 str(self.workdir / "sim.log"),
