@@ -268,7 +268,8 @@ class MDSimulationApplication(Application):
     def generate_restart_pdb(self, sim_dir: Path, frame: int) -> Path:
         """Generate a new PDB from a given `frame` of a previous simulation."""
         old_pdb_file = next(sim_dir.glob("*.pdb"))
-        dcd_file = next(sim_dir.glob("*.dcd"))
+        traj_files = list(sim_dir.glob("*.dcd")) + list(sim_dir.glob("*.xtc"))
+        dcd_file = next(iter(traj_files))
         # New pdb file to write, example: workdir/run-<uuid>_frame000000.pdb
         pdb_file = self.workdir / f"{old_pdb_file.parent.name}_frame{frame:06}.pdb"
         mda_u = MDAnalysis.Universe(str(old_pdb_file), str(dcd_file))
