@@ -183,7 +183,8 @@ class Application(ABC):
             if self.config.node_local_path is None
             else self.config.node_local_path
         )
-        workdir = workdir_parent / f"run-{uuid.uuid4()}"
+        timestamp = datetime.now().strftime("%d%m%y-%H%M%S")
+        workdir = workdir_parent / f"run-{timestamp}-{uuid.uuid4()}"
         workdir.mkdir(exist_ok=True, parents=True)
         self.__workdir = workdir
         return workdir
