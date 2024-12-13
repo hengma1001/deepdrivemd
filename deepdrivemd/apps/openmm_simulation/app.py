@@ -250,17 +250,8 @@ class MDSimulationApplication(Application):
         """Scan directory for optional topology file (assumes topology
         file is in the same directory as the PDB file and that only
         one PDB/topology file exists in each directory.)"""
-        top_file = next(directory.glob("*.top"), None)
-        if top_file is None:
-            top_file = next(directory.glob("*.prmtop"), None)
+        top_file = next(directory.glob("*.prmtop"), None)
         if top_file is not None:
-            # copying additional files, such as ff
-            other_files = list(directory.glob("*"))
-            pdb_file = next(directory.glob("*.pdb"), None)
-            other_files.remove(top_file)
-            other_files.remove(pdb_file)
-            for other_file in other_files:
-                self.copy_to_workdir(other_file)
             top_file = self.copy_to_workdir(top_file)
 
         return top_file
@@ -272,6 +263,7 @@ class MDSimulationApplication(Application):
             dcd_file = next(sim_dir.glob("*.dcd"))
         except:
             dcd_file = next(sim_dir.glob("*.xtc"))
+
         # New pdb file to write, example: workdir/run-<uuid>_frame000000.pdb
         pdb_file = self.workdir / f"{old_pdb_file.parent.name}_frame{frame:06}.pdb"
         mda_u = MDAnalysis.Universe(str(old_pdb_file), str(dcd_file))
@@ -330,6 +322,7 @@ class MDSimulationApplication(Application):
         else:
             traj_file = str(self.workdir / "sim.dcd")
             sim.reporters.append(app.DCDReporter(traj_file, report_steps))
+
         sim.reporters.append(
             app.StateDataReporter(
                 str(self.workdir / "sim.log"),
